@@ -10,6 +10,8 @@ class GridView(QWidget):
         self.cell_size = 20
         self.offset_x = 0
         self.offset_y = 0
+        self.min_cell_size = 5
+        self.max_cell_size = 80
         self.drawing = False
         self.draw_value = 1  # 1 = включаем, 0 = выключаем
         self.panning = False
@@ -26,8 +28,8 @@ class GridView(QWidget):
 
         for row in range(self.grid.rows):
             for col in range(self.grid.cols):
-                x = col * self.cell_size + self.offset_x
-                y = row * self.cell_size + self.offset_y
+                x = int(col * self.cell_size + self.offset_x)
+                y = int(row * self.cell_size + self.offset_y)
                 # живая клетка
                 if self.grid.cells[row][col] == 1:
                     painter.fillRect(x, y,
@@ -89,3 +91,21 @@ class GridView(QWidget):
 
         elif event.button() == Qt.MouseButton.RightButton:
             self.panning = False
+
+    def wheelEvent(self, event):
+        mouse_pos = event.position()
+        old_size = self.cell_size
+
+        if event.angleDelta().y() > 0:
+            new_size = min(self.cell_size + 2, self.max_cell_size) # ограничение максимального размера
+        else:
+            new_size = max(self.cell_size - 2, self.min_cell_size) # ограничение минимального размера
+        if new_size == old_size:
+            return
+        scale = new_size / old_size
+
+        # корректируем offset чтобы зум был относительно курсора
+        self.offset_x = mouse_pos.x() - scale * (mouse_pos.x() - self.offset_x)
+        self.offset_y = mouse_pos.y() - scale * (mouse_pos.y() - self.offset_y)
+        self.cell_size = new_size
+        self.update()
