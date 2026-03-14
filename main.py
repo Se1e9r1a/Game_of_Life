@@ -7,7 +7,7 @@ from PyQt6.QtCore import QTimer, Qt
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.grid = Grid(100, 100)
+        self.grid = Grid()
         self.view = GridView(self.grid)
         self.setCentralWidget(self.view)
         self.resize(800, 600)
@@ -37,10 +37,7 @@ class MainWindow(QMainWindow):
 
         # C/С — очистить поле
         elif key in ('c','с'):
-            for row in range(self.grid.rows):
-                for col in range(self.grid.cols):
-                    self.grid.cells[row][col] = 0
-
+            self.grid.alive.clear()
             self.view.update()
 
 app = QApplication(sys.argv)

@@ -1,40 +1,53 @@
 class Grid:
-    def __init__(self, rows = 20,cols = 20, survive=[2,3], new = [3]):
-        self.rows = rows
-        self.cols = cols
-        self.cells = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
+    def __init__(self, survive=[2,3], birth=[3]):
+        self.alive = set() # множество координат живых клеток
+
         self.survive = survive
-        self.new = new
+        self.birth = birth
 
-    def toggle_cell(self,row,col):
-        if 0 <= row < self.rows and  0 <= col < self.cols:
-            self.cells[row][col] = 1 - self.cells[row][col] # Будет либо 1 - 0 = 1 или 1 - 1 = 0
+    def toggle_cell(self, row, col):
+        cell = (row, col)
 
-    def count_neighbors(self,row,col):
+        if cell in self.alive:
+            self.alive.remove(cell)
+        else:
+            self.alive.add(cell)
+
+    def count_neighbors(self, row, col):
         count = 0
-        for y in range(row-1,row+2):
-            for x in range(col-1,col+2):
-                if (0 <= y < self.rows) and (0 <= x < self.cols):
-                    if (y, x) != (row, col):
-                        count += self.cells[y][x]
+
+        for y in range(row - 1, row + 2):
+            for x in range(col - 1, col + 2):
+                if (y, x) in self.alive and (y, x) != (row, col):
+                    count += 1
+
         return count
 
     def next_generation(self):
-        new_cells = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
+        new_alive = set()
+        candidates = set()
 
-        for y in range(self.rows):
-            for x in range(self.cols):
-                neighbors = self.count_neighbors(y,x)
-                if self.cells[y][x] == 1:
-                    if neighbors in self.survive:
-                        new_cells[y][x] = 1
-                else:
-                    if neighbors in self.new:
-                        new_cells[y][x] = 1
-        self.cells = new_cells
+        # берём всех живых клеток и их соседей
+        for (row, col) in self.alive:
+            for y in range(row - 1, row + 2):
+                for x in range(col - 1, col + 2):
+                    candidates.add((y, x))
 
-    def set_rules(self, survive = None, new = None):
+        # проверяем только кандидатов
+        for (row, col) in candidates:
+            neighbors = self.count_neighbors(row, col)
+
+            if (row, col) in self.alive:
+                if neighbors in self.survive:
+                    new_alive.add((row, col))
+            else:
+                if neighbors in self.birth:
+                    new_alive.add((row, col))
+
+        self.alive = new_alive
+
+    def set_rules(self, survive=None, birth=None):
         if survive is not None:
             self.survive = survive
-        if new is not None:
-            self.new = new
+        if birth is not None:
+            self.birth = birth

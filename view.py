@@ -19,27 +19,45 @@ class GridView(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        # фон
         painter.fillRect(self.rect(), QColor("white"))
-
         pen = QPen(QColor("gray"))
         pen.setWidth(1)
         painter.setPen(pen)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
 
-        for row in range(self.grid.rows):
-            for col in range(self.grid.cols):
-                x = int(col * self.cell_size + self.offset_x)
-                y = int(row * self.cell_size + self.offset_y)
-                # живая клетка
-                if self.grid.cells[row][col] == 1:
-                    painter.fillRect(x, y,
-                                     self.cell_size,
-                                     self.cell_size,
-                                     QColor("green"))
-                # сетка
-                painter.drawRect(x, y,
-                                 self.cell_size,
-                                 self.cell_size)
+        if self.cell_size >= 8:
+            start_col = int(-self.offset_x // self.cell_size) - 1
+            end_col = int((self.width() - self.offset_x) // self.cell_size) + 2
+            start_row = int(-self.offset_y // self.cell_size) - 1
+            end_row = int((self.height() - self.offset_y) // self.cell_size) + 2
+
+            # вертикальные линии
+            for col in range(start_col, end_col):
+                x = round(col * self.cell_size + self.offset_x)
+                painter.drawLine(x, 0, x, self.height())
+
+            # горизонтальные линии
+            for row in range(start_row, end_row):
+                y = round(row * self.cell_size + self.offset_y)
+                painter.drawLine(0, y, self.width(), y)
+
+        # Рисуем только живые клетки
+        for (row, col) in self.grid.alive:
+            x = int(col * self.cell_size + self.offset_x)
+            y = int(row * self.cell_size + self.offset_y)
+            painter.fillRect(
+                x,
+                y,
+                self.cell_size,
+                self.cell_size,
+                QColor("green")
+            )
+            painter.drawRect(
+                x,
+                y,
+                self.cell_size,
+                self.cell_size
+            )
 
     def get_cell_from_mouse(self, pos):
         x = pos.x() - self.offset_x
@@ -52,15 +70,14 @@ class GridView(QWidget):
         # Рисование ЛКМ
         if event.button() == Qt.MouseButton.LeftButton:
             row, col = self.get_cell_from_mouse(event.position())
-            if 0 <= row < self.grid.rows and 0 <= col < self.grid.cols:
-                # Определяем режим рисования
-                if self.grid.cells[row][col] == 1:
-                    self.draw_value = 0
-                else:
-                    self.draw_value = 1
-                self.grid.cells[row][col] = self.draw_value
-                self.drawing = True
-                self.update()
+            if (row, col) in self.grid.alive:
+                self.draw_value = 0
+            else:
+                self.draw_value = 1
+
+            self.grid.toggle_cell(row, col)
+            self.drawing = True
+            self.update()
         # Перемещение камеры ПКМ
         elif event.button() == Qt.MouseButton.RightButton:
             self.panning = True
@@ -70,10 +87,15 @@ class GridView(QWidget):
         # Рисование ЛКМ
         if self.drawing:
             row, col = self.get_cell_from_mouse(event.position())
+            current = (row, col) in self.grid.alive
 
-            if 0 <= row < self.grid.rows and 0 <= col < self.grid.cols:
-                self.grid.cells[row][col] = self.draw_value
-                self.update()
+            if self.draw_value == 1 and not current:
+                self.grid.alive.add((row, col))
+
+            elif self.draw_value == 0 and current:
+                self.grid.alive.remove((row, col))
+
+            self.update()
 
         # Перемещение камеры ПКМ
         if self.panning:
