@@ -12,10 +12,13 @@ class GridView(QWidget):
         self.offset_y = 0
         self.min_cell_size = 5
         self.max_cell_size = 80
+
         self.drawing = False
         self.draw_value = 1  # 1 = включаем, 0 = выключаем
         self.panning = False
         self.last_mouse_pos = None
+
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -41,23 +44,30 @@ class GridView(QWidget):
                 y = round(row * self.cell_size + self.offset_y)
                 painter.drawLine(0, y, self.width(), y)
 
+        # границы видимой области
+        start_col = int((-self.offset_x) // self.cell_size)
+        end_col = int((self.width() - self.offset_x) // self.cell_size) + 1
+        start_row = int((-self.offset_y) // self.cell_size)
+        end_row = int((self.height() - self.offset_y) // self.cell_size) + 1
+
         # Рисуем только живые клетки
         for (row, col) in self.grid.alive:
-            x = int(col * self.cell_size + self.offset_x)
-            y = int(row * self.cell_size + self.offset_y)
-            painter.fillRect(
-                x,
-                y,
-                self.cell_size,
-                self.cell_size,
-                QColor("green")
-            )
-            painter.drawRect(
-                x,
-                y,
-                self.cell_size,
-                self.cell_size
-            )
+            if start_row <= row <= end_row and start_col <= col <= end_col:
+                x = int(col * self.cell_size + self.offset_x)
+                y = int(row * self.cell_size + self.offset_y)
+                painter.fillRect(
+                    x,
+                    y,
+                    self.cell_size,
+                    self.cell_size,
+                    QColor("green")
+                )
+                painter.drawRect(
+                    x,
+                    y,
+                    self.cell_size,
+                    self.cell_size
+                )
 
     def get_cell_from_mouse(self, pos):
         x = pos.x() - self.offset_x
