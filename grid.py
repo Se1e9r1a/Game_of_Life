@@ -51,3 +51,14 @@ class Grid:
             self.survive = survive
         if birth is not None:
             self.birth = birth
+
+    # grid.py (внутри класса Grid)
+
+    def insert_pattern(self, pattern_name: str, top_left: tuple[int, int]):
+        from patterns import PATTERNS
+        if pattern_name not in PATTERNS:
+            return
+
+        row_offset, col_offset = top_left
+        for r, c in PATTERNS[pattern_name]:
+            self.alive.add((r + row_offset, c + col_offset))

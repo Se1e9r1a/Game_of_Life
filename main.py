@@ -1,13 +1,17 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from grid import Grid
+from styles import main_style
 from view import GridView
 from PyQt6.QtCore import QTimer, Qt
-from ui_controls import ControlPanel
+from ui_controls import ControlPanelTop, ControlPanelLeft
+from PyQt6.QtGui import QShortcut, QKeySequence
+from PyQt6.QtWidgets import QDockWidget
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setStyleSheet(main_style)
         self.grid = Grid()
         self.view = GridView(self.grid)
         self.setCentralWidget(self.view)
@@ -18,18 +22,45 @@ class MainWindow(QMainWindow):
         self.timer.timeout.connect(self.next_generation)
         self.timer.start(self.timer_interval)
 
-        self.control_panel = ControlPanel()
-        self.addToolBarBreak()
-        self.setMenuWidget(self.control_panel)
-        self.control_panel.btn_pause.clicked.connect(self.toggle_pause)
-        self.control_panel.btn_step.clicked.connect(self.step)
-        self.control_panel.btn_slower.clicked.connect(self.decrease_speed)
-        self.control_panel.btn_faster.clicked.connect(self.increase_speed)
+        self.top_panel = ControlPanelTop()  # панель кнопок управления
+        self.left_panel = ControlPanelLeft()  # панель паттернов
 
-        self.control_panel.btn_pause.clicked.connect(self._return_focus)
-        self.control_panel.btn_step.clicked.connect(self._return_focus)
-        self.control_panel.btn_slower.clicked.connect(self._return_focus)
-        self.control_panel.btn_faster.clicked.connect(self._return_focus)
+        # Верхняя панель управления
+        dock_top = QDockWidget("Controls", self)
+        dock_top.setWidget(self.top_panel)
+        dock_top.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+        self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, dock_top)
+
+        # запретить открепление
+        # dock.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+        # добавить слева
+        # self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dock)
+
+        self.top_panel.btn_pause.clicked.connect(self.toggle_pause)
+        self.top_panel.btn_clear.clicked.connect(self.clear)
+        self.top_panel.btn_step.clicked.connect(self.step)
+        self.top_panel.btn_slower.clicked.connect(self.decrease_speed)
+        self.top_panel.btn_faster.clicked.connect(self.increase_speed)
+
+        self.top_panel.btn_pause.clicked.connect(self._return_focus)
+        self.top_panel.btn_clear.clicked.connect(self._return_focus)
+        self.top_panel.btn_step.clicked.connect(self._return_focus)
+        self.top_panel.btn_slower.clicked.connect(self._return_focus)
+        self.top_panel.btn_faster.clicked.connect(self._return_focus)
+
+        #QShortcut - то-же самое что и обработка keyPressEvent, только проще
+        QShortcut(QKeySequence("Space"), self, self.toggle_pause)
+        QShortcut(QKeySequence("="), self, self.increase_speed)
+        QShortcut(QKeySequence("-"), self, self.decrease_speed)
+
+        # Левая панель паттернов
+        dock_left = QDockWidget("Patterns", self)
+        dock_left.setWidget(self.left_panel)
+        self.left_panel.setMinimumWidth(150)
+        dock_left.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dock_left)
+
+        self.left_panel.pause_callback = self.force_pause
 
     def _return_focus(self):
         self.view.setFocus()
@@ -41,55 +72,53 @@ class MainWindow(QMainWindow):
     def keyPressEvent(self, event):
         key = event.text().lower()
 
-        # Space — старт / пауза
-        if event.key() == Qt.Key.Key_Space:
-            self.toggle_pause()
         # N/Т — один шаг
-        elif key in ('n','т'):
+        if key in ('n','т'):
             self.step()
-            self.view.update()
 
         # C/С — очистить поле
         elif key in ('c','с'):
-            self.grid.alive.clear()
-            self.view.update()
+            self.clear()
 
-        # +/- увеличить/уменьшить скорость генерации
-        elif key in ('+', '='):
-            self.increase_speed()
-
-        elif key == '-':
-            self.decrease_speed()
+    def force_pause(self):
+        if self.timer.isActive():
+            self.timer.stop()
+            self.top_panel.btn_pause.setChecked(True)
 
     def toggle_pause(self):
         if self.timer.isActive():
             self.timer.stop()
-            self.control_panel.btn_pause.setChecked(True)
+            self.top_panel.btn_pause.setChecked(True)
         else:
             self.timer.start(self.timer_interval)
-            self.control_panel.btn_pause.setChecked(False)
+            self.top_panel.btn_pause.setChecked(False)
+
+    def clear(self):
+        self.grid.alive.clear()
+        self.view.update()
+        self.top_panel.btn_clear.setDown(True)
+        QTimer.singleShot(100, lambda: self.top_panel.btn_clear.setDown(False))
 
     def step(self):
         self.grid.next_generation()
         self.view.update()
-        self.control_panel.btn_step.setDown(True)
-        QTimer.singleShot(100, lambda: self.control_panel.btn_step.setDown(False))
+        self.top_panel.btn_step.setDown(True)
+        QTimer.singleShot(100, lambda: self.top_panel.btn_step.setDown(False))
 
     def increase_speed(self):
-        self.timer_interval = max(10, self.timer_interval - 20)
+        self.timer_interval = max(1, self.timer_interval - 20)
         self.timer.setInterval(self.timer_interval)
-        self.grid.next_generation()
         self.view.update()
 
-        self.control_panel.btn_faster.setDown(True)
-        QTimer.singleShot(100, lambda: self.control_panel.btn_faster.setDown(False))
+        self.top_panel.btn_faster.setDown(True)
+        QTimer.singleShot(100, lambda: self.top_panel.btn_faster.setDown(False))
 
     def decrease_speed(self):
         self.timer_interval += 20
         self.timer.setInterval(self.timer_interval)
 
-        self.control_panel.btn_slower.setDown(True)
-        QTimer.singleShot(100, lambda: self.control_panel.btn_slower.setDown(False))
+        self.top_panel.btn_slower.setDown(True)
+        QTimer.singleShot(100, lambda: self.top_panel.btn_slower.setDown(False))
 
 app = QApplication(sys.argv)
 window = MainWindow()

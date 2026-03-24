@@ -1,11 +1,14 @@
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtGui import QPainter, QColor
-from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPen
+from patterns import PATTERNS
+from PyQt6.QtGui import QCursor, QKeyEvent
+from PyQt6.QtCore import QTimer, Qt
+
 
 class GridView(QWidget):
-    def __init__(self, grid):
-        super().__init__()
+    def __init__(self, grid,parent = None):
+        super().__init__(parent)
         self.grid = grid
         self.cell_size = 20
         self.offset_x = 0
@@ -19,6 +22,12 @@ class GridView(QWidget):
         self.last_mouse_pos = None
 
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        self.setMouseTracking(True)
+
+        self.is_placing = False  # заменили is_dragging на логичное имя
+        self.preview_pattern_coords = None
+        self.preview_coords = (0, 0)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -69,6 +78,16 @@ class GridView(QWidget):
                     self.cell_size
                 )
 
+        if self.is_placing and self.preview_coords and self.preview_pattern_coords:
+            r_origin, c_origin = self.preview_coords
+            painter.setBrush(QColor(0, 120, 215, 100))  # Полупрозрачный синий
+            painter.setPen(QPen(QColor(0, 120, 215), 1))
+
+            for r, c in self.preview_pattern_coords:
+                x = (c + c_origin) * self.cell_size + self.offset_x
+                y = (r + r_origin) * self.cell_size + self.offset_y
+                painter.drawRect(int(x), int(y), int(self.cell_size), int(self.cell_size))
+
     def get_cell_from_mouse(self, pos):
         x = pos.x() - self.offset_x
         y = pos.y() - self.offset_y
@@ -77,6 +96,21 @@ class GridView(QWidget):
         return row, col
 
     def mousePressEvent(self, event):
+        if self.is_placing:
+            if event.button() == Qt.MouseButton.LeftButton:
+                row, col = self.get_cell_from_mouse(event.position())
+                for r, c in self.preview_pattern_coords:
+                    self.grid.alive.add((r + row, c + col))
+                self.is_placing = False
+                self.window().toggle_pause()
+
+            elif event.button() == Qt.MouseButton.RightButton:
+                self.is_placing = False
+                self.window().toggle_pause()
+
+            self.update()
+            return
+
         # Рисование ЛКМ
         if event.button() == Qt.MouseButton.LeftButton:
             row, col = self.get_cell_from_mouse(event.position())
@@ -94,6 +128,11 @@ class GridView(QWidget):
             self.last_mouse_pos = event.position()
 
     def mouseMoveEvent(self, event):
+        if self.is_placing:
+            self.preview_coords = self.get_cell_from_mouse(event.position())
+            self.update()
+            return
+
         # Рисование ЛКМ
         if self.drawing:
             row, col = self.get_cell_from_mouse(event.position())
@@ -110,9 +149,8 @@ class GridView(QWidget):
         # Перемещение камеры ПКМ
         if self.panning:
             delta = event.position() - self.last_mouse_pos
-
-            self.offset_x += int(delta.x())
-            self.offset_y += int(delta.y())
+            self.offset_x += delta.x()
+            self.offset_y += delta.y()
 
             self.last_mouse_pos = event.position()
             self.update()
@@ -124,20 +162,51 @@ class GridView(QWidget):
         elif event.button() == Qt.MouseButton.RightButton:
             self.panning = False
 
+
     def wheelEvent(self, event):
+        if self.is_placing:
+            self.rotate_preview(event.angleDelta().y())
+            return
+
         mouse_pos = event.position()
         old_size = self.cell_size
 
         if event.angleDelta().y() > 0:
-            new_size = min(self.cell_size + 2, self.max_cell_size) # ограничение максимального размера
+            new_size = min(self.cell_size + 2, self.max_cell_size)
         else:
-            new_size = max(self.cell_size - 2, self.min_cell_size) # ограничение минимального размера
-        if new_size == old_size:
-            return
-        scale = new_size / old_size
+            new_size = max(self.cell_size - 2, self.min_cell_size)
 
-        # корректируем offset чтобы зум был относительно курсора
-        self.offset_x = mouse_pos.x() - scale * (mouse_pos.x() - self.offset_x)
-        self.offset_y = mouse_pos.y() - scale * (mouse_pos.y() - self.offset_y)
-        self.cell_size = new_size
+        if new_size != old_size:
+            scale = new_size / old_size
+            self.offset_x = mouse_pos.x() - scale * (mouse_pos.x() - self.offset_x)
+            self.offset_y = mouse_pos.y() - scale * (mouse_pos.y() - self.offset_y)
+            self.cell_size = new_size
+            self.update()
+
+    def rotate_preview(self, direction):
+        if self.preview_pattern_coords:
+            coords = list(self.preview_pattern_coords)
+            if direction > 0:
+                new_coords = {(c, -r) for r, c in coords}
+            else:
+                new_coords = {(-c, r) for r, c in coords}
+
+            min_r = min(r for r, c in new_coords)
+            min_c = min(c for r, c in new_coords)
+            self.preview_pattern_coords = {(r - min_r, c - min_c) for r, c in new_coords}
+
+            self.preview_coords = self.get_cell_from_mouse(self.mapFromGlobal(QCursor.pos()))
+            self.update()
+
+    def start_placement(self, pattern_name, global_click_pos=None):
+        self.is_placing = True
+        self.preview_pattern_coords = set(PATTERNS.get(pattern_name, []))
+
+        if global_click_pos:
+            local_pos = self.mapFromGlobal(global_click_pos.toPoint())
+            self.preview_coords = self.get_cell_from_mouse(local_pos)
+        else:
+            self.preview_coords = self.get_cell_from_mouse(self.mapFromGlobal(QCursor.pos()))
+
+        self.setFocus()
         self.update()
