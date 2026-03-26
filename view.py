@@ -2,8 +2,8 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6.QtGui import QPainter, QColor
 from PyQt6.QtGui import QPen
 from patterns import PATTERNS
-from PyQt6.QtGui import QCursor, QKeyEvent
-from PyQt6.QtCore import QTimer, Qt
+from PyQt6.QtGui import QCursor
+from PyQt6.QtCore import Qt
 
 
 class GridView(QWidget):
@@ -102,11 +102,11 @@ class GridView(QWidget):
                 for r, c in self.preview_pattern_coords:
                     self.grid.alive.add((r + row, c + col))
                 self.is_placing = False
-                self.window().toggle_pause()
+                self.window().controller.toggle_pause()
 
             elif event.button() == Qt.MouseButton.RightButton:
                 self.is_placing = False
-                self.window().toggle_pause()
+                self.window().controller.toggle_pause()
 
             self.update()
             return

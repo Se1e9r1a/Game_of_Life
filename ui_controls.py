@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel
-from PyQt6.QtCore import Qt, QMimeData
-from PyQt6.QtGui import QDrag
+from PyQt6.QtCore import Qt
 from patterns import PATTERNS
 from styles import button_style, pattern_label_style, scroll_bar_style
 from PyQt6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QScrollArea
+from PyQt6.QtWidgets import QDockWidget
+from PyQt6.QtCore import Qt
 
 
 class ControlPanelTop(QWidget):
@@ -70,3 +71,17 @@ class ControlPanelLeft(QWidget):
 
         self.scroll.setWidget(self.container)
         self.main_layout.addWidget(self.scroll)
+
+def setup_window(main_window, top_panel, left_panel):
+    # Настройка верхней панели
+    dock_top = QDockWidget("Controls", main_window)
+    dock_top.setWidget(top_panel)
+    dock_top.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+    main_window.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, dock_top)
+
+    # Настройка левой панели
+    dock_left = QDockWidget("Patterns", main_window)
+    dock_left.setWidget(left_panel)
+    left_panel.setMinimumWidth(150)
+    dock_left.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+    main_window.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dock_left)
