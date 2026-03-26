@@ -5,7 +5,7 @@ from styles import main_style
 from view import GridView
 from ui_controls import ControlPanelTop, ControlPanelLeft
 from controller import MainController
-from ui_controls import ControlPanelTop, ControlPanelLeft, setup_window
+from ui_controls import ControlPanelTop, ControlPanelLeft, setup_window, setup_status_bar
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -20,8 +20,11 @@ class MainWindow(QMainWindow):
         self.top_panel = ControlPanelTop()  # панель кнопок управления
         self.left_panel = ControlPanelLeft()  # панель паттернов
 
+        setup_status_bar(self)
+        
         setup_window(self, self.top_panel, self.left_panel)
         self.controller = MainController(self, self.grid, self.view, self.top_panel, self.left_panel)
+
 
     def keyPressEvent(self, event):
         self.controller.handle_key_press(event)

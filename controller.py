@@ -1,5 +1,6 @@
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QShortcut, QKeySequence
+from PyQt6.QtWidgets import QLabel
 
 class MainController:
     # Все необходимые элементы из main.py
@@ -10,6 +11,7 @@ class MainController:
         self.top_panel = top_panel
         self.left_panel = left_panel
 
+        self.generation = 0
         self.timer_interval = 200
         self.timer = QTimer()
         self.timer.timeout.connect(self.next_generation)
@@ -17,6 +19,8 @@ class MainController:
 
         # Подключаем все кнопки и хоткеи
         self.connect_signals()
+
+        self.update_status_ui()
 
     def connect_signals(self):
         self.top_panel.btn_pause.clicked.connect(self.toggle_pause)
@@ -51,7 +55,9 @@ class MainController:
     
     def next_generation(self):
         self.grid.next_generation()
+        self.generation = self.generation + 1
         self.view.update()
+        self.update_status_ui()
 
     def force_pause(self):
         if self.timer.isActive():
@@ -71,12 +77,16 @@ class MainController:
         self.view.update()
         self.top_panel.btn_clear.setDown(True)
         QTimer.singleShot(100, lambda: self.top_panel.btn_clear.setDown(False))
+        self.generation = 0
+        self.update_status_ui()
 
     def step(self):
         self.grid.next_generation()
         self.view.update()
         self.top_panel.btn_step.setDown(True)
         QTimer.singleShot(100, lambda: self.top_panel.btn_step.setDown(False))
+        self.generation = self.generation + 1
+        self.update_status_ui()
 
     def increase_speed(self):
         self.timer_interval = max(1, self.timer_interval - 40)
@@ -84,9 +94,28 @@ class MainController:
         self.view.update()
         self.top_panel.btn_faster.setDown(True)
         QTimer.singleShot(100, lambda: self.top_panel.btn_faster.setDown(False))
+        self.update_status_ui()
 
     def decrease_speed(self):
         self.timer_interval += 40
         self.timer.setInterval(self.timer_interval)
         self.top_panel.btn_slower.setDown(True)
         QTimer.singleShot(100, lambda: self.top_panel.btn_slower.setDown(False))
+        self.update_status_ui()
+
+    
+    def update_status_ui(self):
+        zoom_value = int(self.view.cell_size * 5)
+        
+        self.window.label_gen.setText("Generation: " + str(self.generation))
+        self.window.label_zoom.setText("Zoom: " + str(zoom_value) + "%")
+        self.window.label_speed.setText("Speed: " + str(self.timer_interval) + "ms")
+
+def setup_status_bar(window):
+    window.label_gen = QLabel("Generation: 0")
+    window.label_zoom = QLabel("Zoom: 100%")
+    window.label_speed = QLabel("Speed: 200ms")
+
+    window.statusBar().addPermanentWidget(window.label_gen)
+    window.statusBar().addPermanentWidget(window.label_zoom)
+    window.statusBar().addPermanentWidget(window.label_speed)

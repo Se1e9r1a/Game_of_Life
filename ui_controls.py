@@ -1,10 +1,9 @@
-from PyQt6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel
 from PyQt6.QtCore import Qt
 from patterns import PATTERNS
 from styles import button_style, pattern_label_style, scroll_bar_style
 from PyQt6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QScrollArea
 from PyQt6.QtWidgets import QDockWidget
-from PyQt6.QtCore import Qt
+
 
 
 class ControlPanelTop(QWidget):
@@ -85,3 +84,18 @@ def setup_window(main_window, top_panel, left_panel):
     left_panel.setMinimumWidth(150)
     dock_left.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
     main_window.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dock_left)
+ 
+def setup_status_bar(window):
+    window.label_gen = QLabel("Generation: 0")
+    window.label_zoom = QLabel("Zoom: 100%")
+    window.label_speed = QLabel("Speed: 200ms")
+
+    status_style = "margin-right: 15px; color: #cccccc; font-family: Consolas, monospace;"
+    window.label_gen.setStyleSheet(status_style)
+    window.label_zoom.setStyleSheet(status_style)
+    window.label_speed.setStyleSheet(status_style)
+
+    sb = window.statusBar()
+    sb.addPermanentWidget(window.label_gen)
+    sb.addPermanentWidget(window.label_zoom)
+    sb.addPermanentWidget(window.label_speed)

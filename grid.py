@@ -52,8 +52,6 @@ class Grid:
         if birth is not None:
             self.birth = birth
 
-    # grid.py (внутри класса Grid)
-
     def insert_pattern(self, pattern_name: str, top_left: tuple[int, int]):
         from patterns import PATTERNS
         if pattern_name not in PATTERNS:
