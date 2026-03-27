@@ -1,8 +1,9 @@
 from PyQt6.QtCore import Qt
 from patterns import PATTERNS
 from styles import button_style, pattern_label_style, scroll_bar_style
-from PyQt6.QtWidgets import QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QScrollArea
+from PyQt6.QtWidgets import QLineEdit, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QScrollArea
 from PyQt6.QtWidgets import QDockWidget
+from PyQt6.QtGui import QIntValidator
 
 
 
@@ -19,12 +20,35 @@ class ControlPanelTop(QWidget):
         self.btn_slower = QPushButton("-")
         self.btn_faster = QPushButton("+")
 
+        self.rule_b = QLineEdit("3")
+        self.rule_s = QLineEdit("23")
+
+        self.rule_b.setFixedWidth(100)
+        self.rule_s.setFixedWidth(100)
+        
+        numeric_validator = QIntValidator()
+
+        self.rule_b.setValidator(numeric_validator)
+        self.rule_s.setValidator(numeric_validator)
+        
+        self.rule_b.setMaxLength(8)
+        self.rule_s.setMaxLength(8)
+
+        self.main_layout.addStretch()
+        
+        self.main_layout.addWidget(QLabel("B:"))
+        self.main_layout.addWidget(self.rule_b)
+        self.main_layout.addWidget(QLabel("S:"))
+        self.main_layout.addWidget(self.rule_s)
+
         self.main_layout.addWidget(self.btn_pause)
         self.main_layout.addWidget(self.btn_clear)
         self.main_layout.addWidget(self.btn_step)
         self.main_layout.addWidget(self.btn_slower)
         self.main_layout.addWidget(self.btn_faster)
 
+        self.main_layout.addStretch()
+        self.main_layout.addSpacing(20)
 
 class DraggableLabel(QLabel):
     def __init__(self, pattern_name, parent=None):

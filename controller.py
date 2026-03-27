@@ -17,6 +17,9 @@ class MainController:
         self.timer.timeout.connect(self.next_generation)
         self.timer.start(self.timer_interval)
 
+        self.top_panel.rule_b.textChanged.connect(self.update_rules)
+        self.top_panel.rule_s.textChanged.connect(self.update_rules)
+
         # Подключаем все кнопки и хоткеи
         self.connect_signals()
 
@@ -110,6 +113,17 @@ class MainController:
         self.window.label_gen.setText("Generation: " + str(self.generation))
         self.window.label_zoom.setText("Zoom: " + str(zoom_value) + "%")
         self.window.label_speed.setText("Speed: " + str(self.timer_interval) + "ms")
+
+    def update_rules(self):
+        # 3 -> 3, 23 -> 2, 3
+        b_text = self.top_panel.rule_b.text()
+        s_text = self.top_panel.rule_s.text()
+        
+        try:
+            self.grid.birth_rules = [int(d) for d in b_text if d.isdigit()]
+            self.grid.survive_rules = [int(d) for d in s_text if d.isdigit()]
+        except:
+            pass
 
 def setup_status_bar(window):
     window.label_gen = QLabel("Generation: 0")

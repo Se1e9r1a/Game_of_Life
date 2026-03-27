@@ -1,9 +1,8 @@
 class Grid:
-    def __init__(self, survive=[2,3], birth=[3]):
-        self.alive = set() # множество координат живых клеток
-
-        self.survive = survive
-        self.birth = birth
+    def __init__(self):
+        self.alive = set()
+        self.birth_rules = [3]
+        self.survive_rules = [2, 3]
 
     def toggle_cell(self, row, col):
         cell = (row, col)
@@ -11,7 +10,7 @@ class Grid:
         if cell in self.alive:
             self.alive.remove(cell)
         else:
-            self.alive.add(cell)
+            self.alive.add(cell)    
 
     def count_neighbors(self, row, col):
         count = 0
@@ -24,27 +23,27 @@ class Grid:
         return count
 
     def next_generation(self):
-        new_alive = set()
-        candidates = set()
+            new_alive = set()
+            candidates = set()
 
-        # берём всех живых клеток и их соседей
-        for (row, col) in self.alive:
-            for y in range(row - 1, row + 2):
-                for x in range(col - 1, col + 2):
-                    candidates.add((y, x))
+            for row, col in self.alive:
+                candidates.add((row, col))
+                for y in range(row - 1, row + 2):
+                    for x in range(col - 1, col + 2):
+                        candidates.add((y, x))
 
-        # проверяем только кандидатов
-        for (row, col) in candidates:
-            neighbors = self.count_neighbors(row, col)
-
-            if (row, col) in self.alive:
-                if neighbors in self.survive:
-                    new_alive.add((row, col))
-            else:
-                if neighbors in self.birth:
-                    new_alive.add((row, col))
-
-        self.alive = new_alive
+            for cell in candidates:
+                r, c = cell 
+                count = self.count_neighbors(r, c)
+                
+                if cell in self.alive:
+                    if count in self.survive_rules:
+                        new_alive.add(cell)
+                else:
+                    if count in self.birth_rules:
+                        new_alive.add(cell)
+            
+            self.alive = new_alive
 
     def set_rules(self, survive=None, birth=None):
         if survive is not None:
