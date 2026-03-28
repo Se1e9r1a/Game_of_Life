@@ -75,3 +75,33 @@ scroll_bar_style = """
         height: 0px;
     }
 """
+
+menu_card_style = "background-color: rgba(30, 30, 30, 230); border: 1px solid #444; border-radius: 15px;"
+
+theme_combo_style = """
+    QComboBox { 
+        background-color: #000; color: #00ff00; border: 1px solid #00ff00; 
+        border-radius: 4px; padding: 5px; font-weight: bold; 
+    }
+    QComboBox QAbstractItemView { background-color: #1a1a1a; color: #00ff00; }
+"""
+
+info_label_style = "color: #bbb; font-size: 13px; background: rgba(255, 255, 255, 10); padding: 10px; border-radius: 5px;"
+
+controls_label_style = """
+    color: #888; font-size: 12px; background: rgba(0, 0, 0, 50); 
+    padding: 8px; border-radius: 5px; border-left: 3px solid #00ff00;
+"""
+
+exit_button_style = """
+    QPushButton {
+        background-color: #444; 
+        color: white; 
+        border-radius: 5px; 
+        padding: 5px 15px; 
+        font-weight: bold;
+    }
+    QPushButton:hover {
+        background-color: #666;
+    }
+"""

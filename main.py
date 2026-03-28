@@ -46,17 +46,37 @@ class MainWindow(QMainWindow):
     def start_game(self, theme_name):
         self.bg_timer.stop()
         self.view.apply_theme(theme_name)
-
         self.grid.alive.clear() 
-        
-        self.top_panel = ControlPanelTop()
-        self.left_panel = ControlPanelLeft()
-        setup_status_bar(self)
-        setup_window(self, self.top_panel, self.left_panel)
-        self.controller = MainController(self, self.grid, self.view, self.top_panel, self.left_panel)
+
+        if not hasattr(self, 'controller'):
+            self.top_panel = ControlPanelTop()
+            self.left_panel = ControlPanelLeft()
+            setup_status_bar(self)
+            setup_window(self, self.top_panel, self.left_panel)
+            self.controller = MainController(self, self.grid, self.view, self.top_panel, self.left_panel)
+            
+            if hasattr(self.top_panel, 'btn_exit'):
+                self.top_panel.btn_exit.clicked.connect(self.return_to_menu)
+        else:
+            self.top_panel.parent().show()
+            self.left_panel.parent().show()
         
         self.launcher.hide()
         self.view.setFocus()
+
+    def return_to_menu(self):
+        self.grid.alive.clear() 
+        for _ in range(500):
+            self.grid.alive.add((random.randint(0, 50), random.randint(0, 70)))
+            
+        self.launcher.show()
+        self.stack.setCurrentIndex(0)
+        self.bg_timer.start(100)
+        
+        if hasattr(self, 'top_panel'):
+            self.top_panel.parent().hide()
+        if hasattr(self, 'left_panel'):
+            self.left_panel.parent().hide()
 
     def resizeEvent(self, event):
         self.launcher.setGeometry(0, 0, self.width(), self.height())

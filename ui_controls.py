@@ -4,8 +4,7 @@ from styles import button_style, pattern_label_style, scroll_bar_style
 from PyQt6.QtWidgets import QLineEdit, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QScrollArea
 from PyQt6.QtWidgets import QDockWidget
 from PyQt6.QtGui import QIntValidator
-
-
+from styles import button_style, pattern_label_style, scroll_bar_style, exit_button_style
 
 class ControlPanelTop(QWidget):
     def __init__(self, parent=None):
@@ -22,15 +21,12 @@ class ControlPanelTop(QWidget):
 
         self.rule_b = QLineEdit("3")
         self.rule_s = QLineEdit("23")
-
         self.rule_b.setFixedWidth(100)
         self.rule_s.setFixedWidth(100)
         
         numeric_validator = QIntValidator()
-
         self.rule_b.setValidator(numeric_validator)
         self.rule_s.setValidator(numeric_validator)
-        
         self.rule_b.setMaxLength(8)
         self.rule_s.setMaxLength(8)
 
@@ -49,6 +45,10 @@ class ControlPanelTop(QWidget):
 
         self.main_layout.addStretch()
         self.main_layout.addSpacing(20)
+
+        self.btn_exit = QPushButton("В МЕНЮ")
+        self.btn_exit.setStyleSheet(exit_button_style)
+        self.main_layout.addWidget(self.btn_exit)
 
 class DraggableLabel(QLabel):
     def __init__(self, pattern_name, parent=None):
