@@ -29,10 +29,16 @@ class GridView(QWidget):
         self.preview_pattern_coords = None
         self.preview_coords = (0, 0)
 
+        self.theme_colors = {
+            "alive": QColor("green"),
+            "grid": QColor("gray"),
+            "bg": QColor("white")
+        }
+
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.fillRect(self.rect(), QColor("white"))
-        pen = QPen(QColor("gray"))
+        painter.fillRect(self.rect(), self.theme_colors["bg"])
+        pen = QPen(self.theme_colors["grid"])
         pen.setWidth(1)
         painter.setPen(pen)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
@@ -64,19 +70,13 @@ class GridView(QWidget):
             if start_row <= row <= end_row and start_col <= col <= end_col:
                 x = int(col * self.cell_size + self.offset_x)
                 y = int(row * self.cell_size + self.offset_y)
+                
+                # Используем цвет живой клетки из темы
                 painter.fillRect(
-                    x,
-                    y,
-                    self.cell_size,
-                    self.cell_size,
-                    QColor("green")
+                    x, y, self.cell_size, self.cell_size, 
+                    self.theme_colors["alive"]
                 )
-                painter.drawRect(
-                    x,
-                    y,
-                    self.cell_size,
-                    self.cell_size
-                )
+                painter.drawRect(x, y, self.cell_size, self.cell_size)
 
         if self.is_placing and self.preview_coords and self.preview_pattern_coords:
             r_origin, c_origin = self.preview_coords
@@ -209,4 +209,13 @@ class GridView(QWidget):
             self.preview_coords = self.get_cell_from_mouse(self.mapFromGlobal(QCursor.pos()))
 
         self.setFocus()
+        self.update()
+
+    def apply_theme(self, theme_name):
+        themes = {
+            "Classic Green": {"alive": QColor("#05ca05"), "grid": QColor("#7B7777"), "bg": QColor("#ffffff")},
+            "Polar White":   {"alive": QColor("#000000"), "grid": QColor("#cccccc"), "bg": QColor("#ffffff")},
+            "Cyberpunk Red": {"alive": QColor("#ff0044"), "grid": QColor("#30000a"), "bg": QColor("#1a0005")}
+        }
+        self.theme_colors = themes.get(theme_name, themes["Classic Green"])
         self.update()
