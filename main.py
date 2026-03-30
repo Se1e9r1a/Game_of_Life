@@ -1,18 +1,22 @@
-import sys
+import sys, os
 import random
 from PyQt6.QtWidgets import QApplication, QMainWindow, QStackedWidget, QWidget, QVBoxLayout
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import QTimer, QUrl
 from grid import Grid
 from view import GridView
 from ui_controls import setup_window, setup_status_bar, ControlPanelTop, ControlPanelLeft
 from controller import MainController
 from launcher import StartWindow
+from PyQt6.QtGui import QIcon
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Game of Life")
         self.resize(800, 600)
+
+        self.setWindowIcon(QIcon("assets/icon.ico"))
 
         self.grid = Grid()
         self.view = GridView(self.grid)
@@ -33,11 +37,24 @@ class MainWindow(QMainWindow):
         
         self.launcher.setGeometry(0, 0, 800, 600)
 
+        self.launcher.theme_combo.currentTextChanged.connect(self.view.apply_theme)
+
         self.bg_timer = QTimer()
         self.bg_timer.timeout.connect(self.update_bg)
         self.bg_timer.start(100)
 
         self.stack.addWidget(self.menu_page)
+
+        self.audio_output = QAudioOutput()
+        self.music_player = QMediaPlayer()
+        self.music_player.setAudioOutput(self.audio_output)
+        
+        music_file = get_path("assets/musik.mp3")
+        
+        self.music_player.setSource(QUrl.fromLocalFile(music_file))
+        self.audio_output.setVolume(0.5)
+        self.music_player.setLoops(QMediaPlayer.Loops.Infinite)
+        self.music_player.play()
 
     def update_bg(self):
         self.grid.next_generation()
@@ -85,6 +102,11 @@ class MainWindow(QMainWindow):
     def keyPressEvent(self, event):
         if hasattr(self, 'controller'):
             self.controller.handle_key_press(event)
+
+    
+def get_path(path):
+    bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    return os.path.join(bundle_dir, path)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -105,3 +105,29 @@ exit_button_style = """
         background-color: #666;
     }
 """
+
+help_box_style = """
+    QLabel {
+        background-color: rgba(20, 20, 20, 240);
+        color: #aaa;
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 15px;
+        font-size: 12px;
+    }
+"""
+
+help_button_style = """
+    QPushButton {
+        background-color: transparent;
+        color: #555;
+        font-size: 18px;
+        font-weight: bold;
+        border: 1px solid #444;
+        border-radius: 12px;
+    }
+    QPushButton:hover {
+        color: #00ff00;
+        border-color: #00ff00;
+    }
+"""
