@@ -1,7 +1,7 @@
 import sys, os
 import random
-from PyQt6.QtWidgets import QApplication, QMainWindow, QStackedWidget, QWidget, QVBoxLayout
-from PyQt6.QtCore import QTimer, QUrl
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QStackedWidget, QWidget, QVBoxLayout
+from PyQt6.QtCore import QTimer, QUrl, Qt
 from grid import Grid
 from view import GridView
 from ui_controls import setup_window, setup_status_bar, ControlPanelTop, ControlPanelLeft
@@ -9,6 +9,7 @@ from controller import MainController
 from launcher import StartWindow
 from PyQt6.QtGui import QIcon
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
+from styles import mute_button_style
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -48,6 +49,7 @@ class MainWindow(QMainWindow):
         self.audio_output = QAudioOutput()
         self.music_player = QMediaPlayer()
         self.music_player.setAudioOutput(self.audio_output)
+        self.audio_output.setMuted(False)
         
         music_file = get_path("assets/musik.mp3")
         
@@ -55,6 +57,15 @@ class MainWindow(QMainWindow):
         self.audio_output.setVolume(0.5)
         self.music_player.setLoops(QMediaPlayer.Loops.Infinite)
         self.music_player.play()
+
+        self.btn_mute = QPushButton("🔊", self)
+        self.btn_mute.setFixedSize(40, 40)
+        self.btn_mute.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_mute.setStyleSheet(mute_button_style)
+        self.btn_mute.clicked.connect(self.toggle_mute)
+        self.btn_mute.raise_()
+
+        self.statusBar().hide()
 
     def update_bg(self):
         self.grid.next_generation()
@@ -71,21 +82,31 @@ class MainWindow(QMainWindow):
             setup_status_bar(self)
             setup_window(self, self.top_panel, self.left_panel)
             self.controller = MainController(self, self.grid, self.view, self.top_panel, self.left_panel)
-            
+            self.top_panel.btn_exit.clicked.connect(self.return_to_menu)
+
             if hasattr(self.top_panel, 'btn_exit'):
                 self.top_panel.btn_exit.clicked.connect(self.return_to_menu)
         else:
+            self.controller.timer.start()
             self.top_panel.parent().show()
             self.left_panel.parent().show()
-        
+
+        self.controller.update_status_ui()
+        self.statusBar().show()
+
         self.launcher.hide()
         self.view.setFocus()
 
     def return_to_menu(self):
-        self.grid.alive.clear() 
+        if hasattr(self, 'controller'):
+            self.controller.timer.stop()
+            self.controller.generation = 0
+        
         for _ in range(500):
             self.grid.alive.add((random.randint(0, 50), random.randint(0, 70)))
-            
+        self.view.reset_view()
+        
+        self.statusBar().hide()
         self.launcher.show()
         self.stack.setCurrentIndex(0)
         self.bg_timer.start(100)
@@ -102,6 +123,16 @@ class MainWindow(QMainWindow):
     def keyPressEvent(self, event):
         if hasattr(self, 'controller'):
             self.controller.handle_key_press(event)
+
+    def resizeEvent(self, event):
+        self.btn_mute.move(self.width() - 60, self.height() - 60)
+        self.launcher.setGeometry(0, 0, self.width(), self.height())
+        super().resizeEvent(event)
+
+    def toggle_mute(self):
+        is_muted = not self.audio_output.isMuted()
+        self.audio_output.setMuted(is_muted)
+        self.btn_mute.setText("🔈" if is_muted else "🔊")
 
     
 def get_path(path):

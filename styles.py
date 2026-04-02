@@ -131,3 +131,14 @@ help_button_style = """
         border-color: #00ff00;
     }
 """
+
+mute_button_style = """
+    QPushButton {
+        background-color: rgba(40, 40, 40, 180);
+        color: white;
+        border-radius: 20px;
+        font-size: 18px;
+        border: 1px solid #555;
+    }
+    QPushButton:hover { background-color: rgba(70, 70, 70, 255); }
+"""

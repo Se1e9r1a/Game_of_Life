@@ -219,3 +219,9 @@ class GridView(QWidget):
         }
         self.theme_colors = themes.get(theme_name, themes["Classic Green"])
         self.update()
+
+    def reset_view(self):
+        self.cell_size = 20
+        self.offset_x = 0
+        self.offset_y = 0
+        self.update()
