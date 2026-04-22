@@ -3,7 +3,6 @@ from PyQt6.QtGui import QShortcut, QKeySequence
 from PyQt6.QtWidgets import QLabel
 
 class MainController:
-    # Все необходимые элементы из main.py
     def __init__(self, window, grid, view, top_panel, left_panel):
         self.window = window
         self.grid = grid
@@ -110,9 +109,9 @@ class MainController:
     def update_status_ui(self):
         zoom_value = int(self.view.cell_size * 5)
         
-        self.window.label_gen.setText("Generation: " + str(self.generation))
-        self.window.label_zoom.setText("Zoom: " + str(zoom_value) + "%")
-        self.window.label_speed.setText("Speed: " + str(self.timer_interval) + "ms")
+        self.window.label_gen.setText("Поколение: " + str(self.generation))
+        self.window.label_zoom.setText("Зум: " + str(zoom_value) + "%")
+        self.window.label_speed.setText("Скорость: " + str(self.timer_interval) + "ms")
 
     def update_rules(self):
         # 3 -> 3, 23 -> 2, 3
@@ -126,9 +125,9 @@ class MainController:
             pass
 
 def setup_status_bar(window):
-    window.label_gen = QLabel("Generation: 0")
-    window.label_zoom = QLabel("Zoom: 100%")
-    window.label_speed = QLabel("Speed: 200ms")
+    window.label_gen = QLabel("Поколение: 0")
+    window.label_zoom = QLabel("Зум: 100%")
+    window.label_speed = QLabel("Скорость: 200ms")
 
     window.statusBar().addPermanentWidget(window.label_gen)
     window.statusBar().addPermanentWidget(window.label_zoom)

@@ -12,10 +12,10 @@ class ControlPanelTop(QWidget):
         self.setStyleSheet(button_style)
         self.main_layout = QHBoxLayout(self)
 
-        self.btn_pause = QPushButton("Pause")
+        self.btn_pause = QPushButton("Пауза")
         self.btn_pause.setCheckable(True)
-        self.btn_clear = QPushButton("Clear")
-        self.btn_step = QPushButton("Step")
+        self.btn_clear = QPushButton("Очистить")
+        self.btn_step = QPushButton("Шаг")
         self.btn_slower = QPushButton("-")
         self.btn_faster = QPushButton("+")
 
@@ -97,22 +97,22 @@ class ControlPanelLeft(QWidget):
 
 def setup_window(main_window, top_panel, left_panel):
     # Настройка верхней панели
-    dock_top = QDockWidget("Controls", main_window)
+    dock_top = QDockWidget("Управление", main_window)
     dock_top.setWidget(top_panel)
     dock_top.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
     main_window.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, dock_top)
 
     # Настройка левой панели
-    dock_left = QDockWidget("Patterns", main_window)
+    dock_left = QDockWidget("Паттерны", main_window)
     dock_left.setWidget(left_panel)
     left_panel.setMinimumWidth(150)
     dock_left.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
     main_window.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dock_left)
  
 def setup_status_bar(window):
-    window.label_gen = QLabel("Generation: 0")
-    window.label_zoom = QLabel("Zoom: 100%")
-    window.label_speed = QLabel("Speed: 200ms")
+    window.label_gen = QLabel("Поколение: 0")
+    window.label_zoom = QLabel("Зум: 100%")
+    window.label_speed = QLabel("Скорость: 200ms")
 
     status_style = "margin-right: 15px; color: #cccccc; font-family: Consolas, monospace;"
     window.label_gen.setStyleSheet(status_style)
