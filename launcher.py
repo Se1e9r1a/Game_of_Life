@@ -19,7 +19,7 @@ class StartWindow(QWidget):
         card_layout.setSpacing(10)
         card_layout.setContentsMargins(25, 25, 25, 25)
         
-        title = QLabel("GAME OF LIFE")
+        title = QLabel("ИГРА ЖИЗНЬ")
         title.setStyleSheet("color: #00ff00; font-size: 32px; font-weight: bold; font-family: 'Consolas'; background: transparent; margin-bottom: 10px;")
         card_layout.addWidget(title, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -32,7 +32,7 @@ class StartWindow(QWidget):
         card_layout.addWidget(theme_label)
 
         self.theme_combo = QComboBox()
-        self.theme_combo.addItems(["Classic Green", "Cyberpunk Red", "Polar White"])
+        self.theme_combo.addItems(["Классический зеленый", "Киберпанковский красный", "Полярно-белый"])
         self.theme_combo.setStyleSheet(theme_combo_style)
         card_layout.addWidget(self.theme_combo)
 
@@ -67,19 +67,6 @@ class StartWindow(QWidget):
         self.btn_help.clicked.connect(self.toggle_help)
 
         layout.addWidget(menu_card, alignment=Qt.AlignmentFlag.AlignCenter)
-    
-    def update_preview_theme(self, theme_name):
-        themes = {
-            "Classic Green": "#00ff00",
-            "Cyberpunk Red": "#ff0044",
-            "Polar White": "#ffffff"
-        }
-        color = themes.get(theme_name, "#00ff00")
-
-        self.title.setStyleSheet(f"color: {color}; font-size: 32px; font-weight: bold; font-family: 'Consolas';")
-        self.theme_combo.setStyleSheet(f"background-color: #000; color: {color}; border: 1px solid {color}; border-radius: 4px; padding: 5px;")
-        self.btn_start.setStyleSheet(f"background-color: {color}; color: #000; border-radius: 5px; font-weight: bold; font-size: 16px;")
-        self.controls_label.setStyleSheet(f"color: #888; font-size: 12px; background: rgba(0, 0, 0, 50); padding: 8px; border-radius: 5px; border-left: 3px solid {color};")
 
     def toggle_help(self):
         if self.controls_info.isHidden():

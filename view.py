@@ -213,11 +213,11 @@ class GridView(QWidget):
 
     def apply_theme(self, theme_name):
         themes = {
-            "Classic Green": {"alive": QColor("#05ca05"), "grid": QColor("#7B7777"), "bg": QColor("#ffffff")},
-            "Polar White":   {"alive": QColor("#000000"), "grid": QColor("#cccccc"), "bg": QColor("#ffffff")},
-            "Cyberpunk Red": {"alive": QColor("#ff0044"), "grid": QColor("#30000a"), "bg": QColor("#1a0005")}
+            "Классический зеленый": {"alive": QColor("#05ca05"), "grid": QColor("#7B7777"), "bg": QColor("#ffffff")},
+            "Полярно-белый":   {"alive": QColor("#000000"), "grid": QColor("#cccccc"), "bg": QColor("#ffffff")},
+            "Киберпанковский красный": {"alive": QColor("#ff0044"), "grid": QColor("#30000a"), "bg": QColor("#1a0005")}
         }
-        self.theme_colors = themes.get(theme_name, themes["Classic Green"])
+        self.theme_colors = themes.get(theme_name, themes["Классический зеленый"])
         self.update()
 
     def reset_view(self):
