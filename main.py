@@ -54,7 +54,7 @@ class MainWindow(QMainWindow):
         music_file = get_path("assets/musik.mp3")
         
         self.music_player.setSource(QUrl.fromLocalFile(music_file))
-        self.audio_output.setVolume(0.5)
+        self.audio_output.setVolume(0.3)
         self.music_player.setLoops(QMediaPlayer.Loops.Infinite)
         self.music_player.play()
 
