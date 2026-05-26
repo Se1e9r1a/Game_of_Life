@@ -22,8 +22,8 @@ class MainWindow(QMainWindow):
         self.grid = Grid()
         self.view = GridView(self.grid)
 
-        for _ in range(500):
-            self.grid.alive.add((random.randint(0, 50), random.randint(0, 70)))
+        for _ in range(10000):
+            self.grid.alive.add((random.randint(0, 200), random.randint(0, 200)))
 
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
@@ -102,8 +102,8 @@ class MainWindow(QMainWindow):
             self.controller.timer.stop()
             self.controller.generation = 0
         
-        for _ in range(500):
-            self.grid.alive.add((random.randint(0, 50), random.randint(0, 70)))
+        for _ in range(10000):
+            self.grid.alive.add((random.randint(0, 200), random.randint(0, 200)))
         self.view.reset_view()
         
         self.statusBar().hide()
