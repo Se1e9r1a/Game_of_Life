@@ -22,8 +22,8 @@ class MainWindow(QMainWindow):
         self.grid = Grid()
         self.view = GridView(self.grid)
 
-        for _ in range(10000):
-            self.grid.alive.add((random.randint(0, 200), random.randint(0, 200)))
+        for _ in range(3000):
+            self.grid.alive.add((random.randint(0, 60), random.randint(0, 160)))
 
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
@@ -39,6 +39,8 @@ class MainWindow(QMainWindow):
         self.launcher.setGeometry(0, 0, 800, 600)
 
         self.launcher.theme_combo.currentTextChanged.connect(self.view.apply_theme)
+        current_theme = self.launcher.theme_combo.currentText()
+        self.view.apply_theme(current_theme)
 
         self.bg_timer = QTimer()
         self.bg_timer.timeout.connect(self.update_bg)
@@ -102,8 +104,8 @@ class MainWindow(QMainWindow):
             self.controller.timer.stop()
             self.controller.generation = 0
         
-        for _ in range(10000):
-            self.grid.alive.add((random.randint(0, 200), random.randint(0, 200)))
+        for _ in range(3000):
+            self.grid.alive.add((random.randint(0, 60), random.randint(0, 160)))
         self.view.reset_view()
         
         self.statusBar().hide()
